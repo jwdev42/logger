@@ -1,0 +1,5 @@
+logger is a threadsafe logging library for go that does conditional logging controlled via UNIX-style loglevels.
+Read its documentation via "go doc -all".
+The library is free software licensed under the LGPL-3 license.
+
+©2020 Jörg Walter

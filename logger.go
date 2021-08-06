@@ -10,6 +10,7 @@ package logger
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -89,6 +90,12 @@ func (l *Logger) Alert(v ...interface{}) (n int, err error) {
 //Critical sends a message of loglevel LevelCritical to the Logger.
 func (l *Logger) Critical(v ...interface{}) (n int, err error) {
 	return l.Println(LevelCritical, v...)
+}
+
+//Die sends a message of loglevel LevelPanic to the Logger, then exits with code 1.
+func (l *Logger) Die(v ...interface{}) {
+	l.Panic(v)
+	os.Exit(1)
 }
 
 //Debug sends a message of loglevel LevelDebug to the Logger.

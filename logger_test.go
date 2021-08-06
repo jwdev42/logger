@@ -9,38 +9,38 @@ import (
 	"testing"
 )
 
-const loglevel_delimiter = " - "
+const loglevelDelimiter = " - "
 
-func doeslog(t *testing.T, logger_level int, message_level int, msg string) {
+func doeslog(t *testing.T, loglevel int, messageLevel int, msg string) {
 	b := new(strings.Builder)
-	l := New(b, logger_level, loglevel_delimiter)
-	l.Println(message_level, msg)
-	expected := fmt.Sprintf("%s%s%s\n", level2str[message_level], loglevel_delimiter, msg)
+	l := New(b, loglevel, loglevelDelimiter)
+	l.Println(messageLevel, msg)
+	expected := fmt.Sprintf("%s%s%s\n", level2str[messageLevel], loglevelDelimiter, msg)
 	if b.String() != expected {
 		t.Errorf("Logstring %q is not equal to expected string %q", b.String(), expected)
 	}
 }
 
-func doesnotlog(t *testing.T, logger_level int, message_level int, msg string) {
+func doesnotlog(t *testing.T, loglevel int, messageLevel int, msg string) {
 	b := new(strings.Builder)
-	l := New(b, logger_level, loglevel_delimiter)
-	l.Println(message_level, msg)
+	l := New(b, loglevel, loglevelDelimiter)
+	l.Println(messageLevel, msg)
 	if b.String() != "" {
-		t.Errorf("Log message %q of level %s should not have been printed via a logger at level %s", msg, level2str[message_level], level2str[logger_level])
+		t.Errorf("Log message %q of level %s should not have been printed via a logger at level %s", msg, level2str[messageLevel], level2str[loglevel])
 	}
 }
 
 func TestLoglevels(t *testing.T) {
 	const msg = "Test Message!"
-	for logger_level := Level_Debug; logger_level >= Level_Panic; logger_level-- {
-		for message_level := logger_level; message_level >= Level_Panic; message_level-- {
-			doeslog(t, logger_level, message_level, msg)
+	for loglevel := LevelDebug; loglevel >= LevelPanic; loglevel-- {
+		for messageLevel := loglevel; messageLevel >= LevelPanic; messageLevel-- {
+			doeslog(t, loglevel, messageLevel, msg)
 		}
 	}
 
-	for logger_level := Level_Panic; logger_level <= Level_Info; logger_level++ {
-		for message_level := logger_level + 1; message_level <= Level_Debug; message_level++ {
-			doesnotlog(t, logger_level, message_level, msg)
+	for loglevel := LevelPanic; loglevel <= LevelInfo; loglevel++ {
+		for messageLevel := loglevel + 1; messageLevel <= LevelDebug; messageLevel++ {
+			doesnotlog(t, loglevel, messageLevel, msg)
 		}
 	}
 }
@@ -51,11 +51,11 @@ func TestPrintShortcuts(t *testing.T) {
 	const errformat = "Expected %q. Got %q"
 	var expect string
 	b := new(strings.Builder)
-	l := New(b, Level_Debug, loglevel_delimiter)
+	l := New(b, LevelDebug, loglevelDelimiter)
 
 	//Panic
 	l.Panic(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Panic], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelPanic], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -63,7 +63,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Alert
 	l.Alert(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Alert], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelAlert], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -71,7 +71,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Critical
 	l.Critical(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Critical], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelCritical], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -79,7 +79,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Error
 	l.Error(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Error], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelError], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -87,7 +87,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Warning
 	l.Warning(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Warning], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelWarning], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -95,7 +95,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Notice
 	l.Notice(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Notice], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelNotice], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -103,7 +103,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Info
 	l.Info(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Info], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelInfo], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}
@@ -111,7 +111,7 @@ func TestPrintShortcuts(t *testing.T) {
 
 	//Debug
 	l.Debug(msg)
-	expect = fmt.Sprintf(format, level2str[Level_Debug], loglevel_delimiter, msg)
+	expect = fmt.Sprintf(format, level2str[LevelDebug], loglevelDelimiter, msg)
 	if b.String() != expect {
 		t.Errorf(errformat, expect, b.String())
 	}

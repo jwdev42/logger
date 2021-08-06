@@ -16,7 +16,7 @@ func TestStr2arg(t *testing.T) {
 	}
 }
 
-func TestLevelFlag_String(t *testing.T) {
+func TestLevelFlagString(t *testing.T) {
 	for k, v := range level2str {
 		arg, err := str2arg(v)
 		if err != nil {

@@ -1,5 +1,5 @@
 logger is a threadsafe logging library for go that does conditional logging controlled via UNIX-style loglevels.
-Read its documentation via "go doc -all".
-The library is free software licensed under the LGPL-3 license.
+Documentation is available through go doc.
+The library is free software licensed under a 2-clause BSD license.
 
 ©2020 Jörg Walter

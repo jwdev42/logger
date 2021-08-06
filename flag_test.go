@@ -1,5 +1,4 @@
-//This file is part of logger.
-//©2020 Jörg Walter, License: LGPL-3
+//This file is part of logger. ©2020 Jörg Walter.
 
 package logger
 

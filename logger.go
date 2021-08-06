@@ -1,5 +1,4 @@
-//This file is part of logger.
-//©2020 Jörg Walter, License: LGPL-3
+//This file is part of logger. ©2020 Jörg Walter.
 
 //The package logger provides a Logger type that can receive log records. Logger will only display a record if it is as severe as
 //or more severe than the loglevel set for the Logger. Users of Logger therefore can control how much logging output they will see

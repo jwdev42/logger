@@ -3,8 +3,11 @@
 package logger
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -136,4 +139,38 @@ func TestPrintfAutoLF(t *testing.T) {
 		t.Errorf("Expected %q. Got %q", expect, b.String())
 	}
 	b.Reset()
+}
+
+// Checks if the mutex lock works correctly
+func TestMutex(t *testing.T) {
+	const messageLength = 36
+	const goroutines = 16
+	b := new(bytes.Buffer)
+	l := New(b, LevelDebug, loglevelDelimiter)
+	//Create output
+	wg := new(sync.WaitGroup)
+	wg.Add(goroutines)
+	for i := 0; i < goroutines; i++ {
+		go testMutexWorker(wg, l, i)
+	}
+	wg.Wait()
+	//Check output
+	scanner := bufio.NewScanner(b)
+	var text string
+	for line := 1; scanner.Scan(); line++ {
+		text = scanner.Text()
+		if len(text) != messageLength {
+			t.Errorf("Malformed text at line %d: %s", line, text)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		t.Errorf("Scanner returned error: %s", err)
+	}
+}
+
+func testMutexWorker(wg *sync.WaitGroup, l *Logger, id int) {
+	for i := 0; i < 10000; i++ {
+		l.Debugf("Goroutine %02d: Message %04d", id, i)
+	}
+	wg.Done()
 }

@@ -34,7 +34,7 @@ func (f *LevelFlag) String() string {
 	return ""
 }
 
-//Converts a string representation of a log level to a command line argument representation of itself.
+// Converts a string representation of a log level to a command line argument representation of itself.
 func str2arg(input string) (string, error) {
 	if input[0] != '[' || input[len(input)-1] != ']' || len(input) < 3 {
 		return "", fmt.Errorf("%q is not a valid loglevel string representation", input)

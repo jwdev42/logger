@@ -46,73 +46,94 @@ func TestLoglevels(t *testing.T) {
 
 func TestPrintShortcuts(t *testing.T) {
 	const msg = "This is a sample log record"
-	const format = "%s%s%s\n"
-	const errformat = "Expected %q. Got %q"
 	var expect string
 	b := new(strings.Builder)
 	l := New(b, LevelDebug, loglevelDelimiter)
 
-	//Panic
-	l.Panic(msg)
-	expect = fmt.Sprintf(format, level2str[LevelPanic], loglevelDelimiter, msg)
+	for logLevel := LevelPanic; logLevel <= LevelDebug; logLevel++ {
+		switch logLevel {
+		case LevelPanic:
+			l.Panic(msg)
+		case LevelAlert:
+			l.Alert(msg)
+		case LevelCritical:
+			l.Critical(msg)
+		case LevelError:
+			l.Error(msg)
+		case LevelWarning:
+			l.Warning(msg)
+		case LevelNotice:
+			l.Notice(msg)
+		case LevelInfo:
+			l.Info(msg)
+		case LevelDebug:
+			l.Debug(msg)
+		default:
+			t.Fatalf("Unknown loglevel %d", logLevel)
+		}
+		expect = fmt.Sprintf("%s%s%s\n", level2str[logLevel], loglevelDelimiter, msg)
+		if b.String() != expect {
+			t.Errorf("Expected %q. Got %q", expect, b.String())
+		}
+		b.Reset()
+	}
+}
+
+func TestPrintfShortcuts(t *testing.T) {
+	const msg = "This is a sample log record for"
+	var expect string
+	b := new(strings.Builder)
+	l := New(b, LevelDebug, loglevelDelimiter)
+
+	for logLevel := LevelPanic; logLevel <= LevelDebug; logLevel++ {
+		switch logLevel {
+		case LevelPanic:
+			l.Panicf("%s %s", msg, level2str[logLevel])
+		case LevelAlert:
+			l.Alertf("%s %s", msg, level2str[logLevel])
+		case LevelCritical:
+			l.Criticalf("%s %s", msg, level2str[logLevel])
+		case LevelError:
+			l.Errorf("%s %s", msg, level2str[logLevel])
+		case LevelWarning:
+			l.Warningf("%s %s", msg, level2str[logLevel])
+		case LevelNotice:
+			l.Noticef("%s %s", msg, level2str[logLevel])
+		case LevelInfo:
+			l.Infof("%s %s", msg, level2str[logLevel])
+		case LevelDebug:
+			l.Debugf("%s %s", msg, level2str[logLevel])
+		default:
+			t.Fatalf("Unknown loglevel %d", logLevel)
+		}
+		expect = fmt.Sprintf(
+			"%s%s%s %s\n",
+			level2str[logLevel],
+			loglevelDelimiter,
+			msg,
+			level2str[logLevel])
+		if b.String() != expect {
+			t.Errorf("Expected %q. Got %q", expect, b.String())
+		}
+		b.Reset()
+	}
+}
+
+func TestPrintfAutoLF(t *testing.T) {
+	const msg = "5 + 4 = 9"
+	expect := fmt.Sprintf("%s%s%s\n", level2str[LevelDebug], loglevelDelimiter, msg)
+	b := new(strings.Builder)
+	l := New(b, LevelDebug, loglevelDelimiter)
+	//without LF
+	l.Debugf("%d + %d = %d", 5, 4, 9)
 	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
+		t.Errorf("Expected %q. Got %q", expect, b.String())
 	}
 	b.Reset()
-
-	//Alert
-	l.Alert(msg)
-	expect = fmt.Sprintf(format, level2str[LevelAlert], loglevelDelimiter, msg)
+	//with LF
+	l.Debugf("%d + %d = %d\n", 5, 4, 9)
 	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Critical
-	l.Critical(msg)
-	expect = fmt.Sprintf(format, level2str[LevelCritical], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Error
-	l.Error(msg)
-	expect = fmt.Sprintf(format, level2str[LevelError], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Warning
-	l.Warning(msg)
-	expect = fmt.Sprintf(format, level2str[LevelWarning], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Notice
-	l.Notice(msg)
-	expect = fmt.Sprintf(format, level2str[LevelNotice], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Info
-	l.Info(msg)
-	expect = fmt.Sprintf(format, level2str[LevelInfo], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
-	}
-	b.Reset()
-
-	//Debug
-	l.Debug(msg)
-	expect = fmt.Sprintf(format, level2str[LevelDebug], loglevelDelimiter, msg)
-	if b.String() != expect {
-		t.Errorf(errformat, expect, b.String())
+		t.Errorf("Expected %q. Got %q", expect, b.String())
 	}
 	b.Reset()
 }

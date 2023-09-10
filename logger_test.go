@@ -1,4 +1,4 @@
-//This file is part of logger. ©2020 Jörg Walter.
+//This file is part of logger. ©2020-2023 Jörg Walter.
 
 package logger
 
@@ -13,22 +13,22 @@ import (
 
 const loglevelDelimiter = " - "
 
-func doeslog(t *testing.T, loglevel int, messageLevel int, msg string) {
+func doeslog(t *testing.T, loglevel Level, messageLevel Level, msg string) {
 	b := new(strings.Builder)
 	l := New(b, loglevel, loglevelDelimiter)
 	l.Println(messageLevel, msg)
-	expected := fmt.Sprintf("%s%s%s\n", level2str[messageLevel], loglevelDelimiter, msg)
+	expected := fmt.Sprintf("[%s]%s%s\n", messageLevel.String(), loglevelDelimiter, msg)
 	if b.String() != expected {
 		t.Errorf("Logstring %q is not equal to expected string %q", b.String(), expected)
 	}
 }
 
-func doesnotlog(t *testing.T, loglevel int, messageLevel int, msg string) {
+func doesnotlog(t *testing.T, loglevel Level, messageLevel Level, msg string) {
 	b := new(strings.Builder)
 	l := New(b, loglevel, loglevelDelimiter)
 	l.Println(messageLevel, msg)
 	if b.String() != "" {
-		t.Errorf("Log message %q of level %s should not have been printed via a logger at level %s", msg, level2str[messageLevel], level2str[loglevel])
+		t.Errorf("Log message %q of level %s should not have been printed via a logger at level %s", msg, messageLevel.String(), loglevel.String())
 	}
 }
 
@@ -74,7 +74,7 @@ func TestPrintShortcuts(t *testing.T) {
 		default:
 			t.Fatalf("Unknown loglevel %d", logLevel)
 		}
-		expect = fmt.Sprintf("%s%s%s\n", level2str[logLevel], loglevelDelimiter, msg)
+		expect = fmt.Sprintf("[%s]%s%s\n", logLevel.String(), loglevelDelimiter, msg)
 		if b.String() != expect {
 			t.Errorf("Expected %q. Got %q", expect, b.String())
 		}
@@ -91,30 +91,30 @@ func TestPrintfShortcuts(t *testing.T) {
 	for logLevel := LevelPanic; logLevel <= LevelDebug; logLevel++ {
 		switch logLevel {
 		case LevelPanic:
-			l.Panicf("%s %s", msg, level2str[logLevel])
+			l.Panicf("%s %s", msg, logLevel.String())
 		case LevelAlert:
-			l.Alertf("%s %s", msg, level2str[logLevel])
+			l.Alertf("%s %s", msg, logLevel.String())
 		case LevelCritical:
-			l.Criticalf("%s %s", msg, level2str[logLevel])
+			l.Criticalf("%s %s", msg, logLevel.String())
 		case LevelError:
-			l.Errorf("%s %s", msg, level2str[logLevel])
+			l.Errorf("%s %s", msg, logLevel.String())
 		case LevelWarning:
-			l.Warningf("%s %s", msg, level2str[logLevel])
+			l.Warningf("%s %s", msg, logLevel.String())
 		case LevelNotice:
-			l.Noticef("%s %s", msg, level2str[logLevel])
+			l.Noticef("%s %s", msg, logLevel.String())
 		case LevelInfo:
-			l.Infof("%s %s", msg, level2str[logLevel])
+			l.Infof("%s %s", msg, logLevel.String())
 		case LevelDebug:
-			l.Debugf("%s %s", msg, level2str[logLevel])
+			l.Debugf("%s %s", msg, logLevel.String())
 		default:
 			t.Fatalf("Unknown loglevel %d", logLevel)
 		}
 		expect = fmt.Sprintf(
-			"%s%s%s %s\n",
-			level2str[logLevel],
+			"[%s]%s%s %s\n",
+			logLevel.String(),
 			loglevelDelimiter,
 			msg,
-			level2str[logLevel])
+			logLevel.String())
 		if b.String() != expect {
 			t.Errorf("Expected %q. Got %q", expect, b.String())
 		}
@@ -124,7 +124,7 @@ func TestPrintfShortcuts(t *testing.T) {
 
 func TestPrintfAutoLF(t *testing.T) {
 	const msg = "5 + 4 = 9"
-	expect := fmt.Sprintf("%s%s%s\n", level2str[LevelDebug], loglevelDelimiter, msg)
+	expect := fmt.Sprintf("[%s]%s%s\n", LevelDebug.String(), loglevelDelimiter, msg)
 	b := new(strings.Builder)
 	l := New(b, LevelDebug, loglevelDelimiter)
 	//without LF

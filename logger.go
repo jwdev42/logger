@@ -4,7 +4,7 @@
 // or more severe than the loglevel set for the Logger. Users of Logger therefore can control how much logging output they will see
 // while running their program. A Logger can be used by multiple goroutines.
 //
-// For usable loglevels see CONSTANTS.
+// For usable loglevels see const.
 package logger
 
 import (
@@ -16,48 +16,19 @@ import (
 	"time"
 )
 
-const (
-	LevelPanic = iota
-	LevelAlert
-	LevelCritical
-	LevelError
-	LevelWarning
-	LevelNotice
-	LevelInfo
-	LevelDebug
-)
-
-var level2str = map[int]string{
-	LevelPanic:    "[Panic]",
-	LevelAlert:    "[Alert]",
-	LevelCritical: "[Critical]",
-	LevelError:    "[Error]",
-	LevelWarning:  "[Warning]",
-	LevelNotice:   "[Notice]",
-	LevelInfo:     "[Info]",
-	LevelDebug:    "[Debug]",
-}
-
-// Panics if the loglevel does not exist.
-func assertLoglevel(level int) {
-	if level < LevelPanic || level > LevelDebug {
-		panic(fmt.Sprintf("Log level %d is not defined", level))
-	}
-}
-
 // Logger is the data type used for sending log records to.
 type Logger struct {
 	mu         *sync.Mutex
 	delimiter  string
 	timeFormat string
-	level      int
+	level      Level
 	out        io.Writer
 }
 
 // New constructs a new Logger. It will print a log record to its given writer if it fulfills the
 // Logger's designated loglevel or a more severe one. If you set the level to LevelCritical, the Logger
 // will print all messages of LevelPanic or LevelAlert or LevelCritical.
-func New(w io.Writer, level int, delimiter string) *Logger {
+func New(w io.Writer, level Level, delimiter string) *Logger {
 	if len(delimiter) < 1 {
 		panic("delimiter must have one or more characters")
 	}
@@ -133,17 +104,10 @@ func (l *Logger) Infof(format string, a ...any) (n int, err error) {
 }
 
 // Level returns the Logger's current loglevel as an integer.
-func (l *Logger) Level() int {
+func (l *Logger) Level() Level {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.level
-}
-
-// LevelStr returns the string representation of the Logger's current loglevel.
-func (l *Logger) LevelStr() string {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return level2str[l.level]
 }
 
 // Notice sends a message of loglevel LevelNotice to the Logger.
@@ -169,7 +133,7 @@ func (l *Logger) Panicf(format string, a ...any) (n int, err error) {
 }
 
 // Println writes the log message if its log level is equally severe or more severe than that set for the Logger.
-func (l *Logger) Println(level int, v ...any) (n int, err error) {
+func (l *Logger) Println(level Level, v ...any) (n int, err error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if !l.trigger(level) {
@@ -177,23 +141,23 @@ func (l *Logger) Println(level int, v ...any) (n int, err error) {
 	}
 	if len(l.timeFormat) > 0 {
 		return fmt.Fprintf(l.out,
-			"%s%s%s%s%s\n",
-			level2str[level],
+			"[%s]%s%s%s%s\n",
+			level.String(),
 			l.delimiter,
 			time.Now().Format(l.timeFormat),
 			l.delimiter,
 			fmt.Sprint(v...))
 	} else {
 		return fmt.Fprintf(l.out,
-			"%s%s%s\n",
-			level2str[level],
+			"[%s]%s%s\n",
+			level.String(),
 			l.delimiter,
 			fmt.Sprint(v...))
 	}
 }
 
 // Printf writes a formatted log message if the logger was configured to print the given level.
-func (l *Logger) Printf(level int, format string, a ...any) (n int, err error) {
+func (l *Logger) Printf(level Level, format string, a ...any) (n int, err error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if !l.trigger(level) {
@@ -201,23 +165,23 @@ func (l *Logger) Printf(level int, format string, a ...any) (n int, err error) {
 	}
 	if len(l.timeFormat) > 0 {
 		return fmt.Fprintf(l.out,
-			"%s%s%s%s%s",
-			level2str[level],
+			"[%s]%s%s%s%s",
+			level.String(),
 			l.delimiter,
 			time.Now().Format(l.timeFormat),
 			l.delimiter,
 			l.autoAppendLF(fmt.Sprintf(format, a...)))
 	} else {
 		return fmt.Fprintf(l.out,
-			"%s%s%s",
-			level2str[level],
+			"[%s]%s%s",
+			level.String(),
 			l.delimiter,
 			l.autoAppendLF(fmt.Sprintf(format, a...)))
 	}
 }
 
 // SetLevel sets a new loglevel for the Logger. Setting an invalid loglevel will cause a panic.
-func (l *Logger) SetLevel(level int) {
+func (l *Logger) SetLevel(level Level) {
 	assertLoglevel(level)
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -259,9 +223,9 @@ func (l *Logger) Warningf(format string, a ...any) (n int, err error) {
 
 // trigger returns true if the Logger should print a message of loglevel
 // level, otherwise it returns false.
-func (l *Logger) trigger(level int) bool {
-	assertLoglevel(level)
-	if level <= l.level {
+func (l *Logger) trigger(lvl Level) bool {
+	assertLoglevel(lvl)
+	if lvl <= l.level {
 		return true
 	}
 	return false

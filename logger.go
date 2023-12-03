@@ -30,7 +30,10 @@ type Logger struct {
 // will print all messages of LevelPanic or LevelAlert or LevelCritical.
 func New(w io.Writer, level Level, delimiter string) *Logger {
 	if len(delimiter) < 1 {
-		panic("delimiter must have one or more characters")
+		panic("Programming error: logger.New: Passed empty string as delimiter")
+	}
+	if w == nil {
+		panic("Programming error: logger.New: Passed nil as output writer")
 	}
 	assertLoglevel(level)
 	return &Logger{
@@ -190,6 +193,9 @@ func (l *Logger) SetLevel(level Level) {
 
 // SetOutput changes the writer the Logger will write its messages to.
 func (l *Logger) SetOutput(w io.Writer) {
+	if w == nil {
+		panic("Programming error: (l *Logger) SetOutput(): Passed nil as output writer")
+	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.out = w
